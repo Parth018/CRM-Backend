@@ -4,21 +4,24 @@ import jakarta.persistence.*;
 import lombok.NoArgsConstructor;
 
 import java.util.Objects;
+import java.util.UUID;
 
 
 @Entity
 public class LeadManagement {
     @Id
-    @SequenceGenerator(
-            name = "lead_id_sequence",
-            sequenceName = "lead_id_sequence"
-    )
-    @GeneratedValue(
-            strategy = GenerationType.SEQUENCE,
-            generator = "lead_id_sequence"
-    )
-    private Integer id;
-    private String lead_id;
+//    @SequenceGenerator(
+//            name = "lead_id_sequence",
+//            sequenceName = "lead_id_sequence"
+//    )
+//    @GeneratedValue(
+//            strategy = GenerationType.SEQUENCE,
+//            generator = "lead_id_sequence"
+//    )
+    private String id;
+
+    @Column(name = "lead_id", nullable = false)
+    private String leadId;
 
     @Enumerated(EnumType.STRING)
     private Status status;
@@ -30,15 +33,12 @@ public class LeadManagement {
     private String model;
     private Integer year;
 
-    public LeadManagement(Integer id,
-                          String leadId,
-                          Status status,
-                          Priority priority,
-                          String make,
-                          String model,
-                          Integer year) {
+    public LeadManagement() {
+    }
+
+    public LeadManagement(String id, String leadId, Status status, Priority priority, String make, String model, Integer year) {
         this.id = id;
-        lead_id = leadId;
+        this.leadId = leadId;
         this.status = status;
         this.priority = priority;
         this.make = make;
@@ -46,20 +46,20 @@ public class LeadManagement {
         this.year = year;
     }
 
-    public Integer getId() {
+    public String getId() {
         return id;
     }
 
-    public void setId(Integer id) {
+    public void setId(String id) {
         this.id = id;
     }
 
-    public String getLead_id() {
-        return lead_id;
+    public String getLeadId() {
+        return leadId;
     }
 
-    public void setLead_id(String lead_id) {
-        this.lead_id = lead_id;
+    public void setLeadId(String leadId) {
+        this.leadId = leadId;
     }
 
     public Status getStatus() {
@@ -102,27 +102,24 @@ public class LeadManagement {
         this.year = year;
     }
 
-    public LeadManagement() {
-    }
-
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         LeadManagement that = (LeadManagement) o;
-        return Objects.equals(id, that.id) && Objects.equals(lead_id, that.lead_id) && status == that.status && priority == that.priority && Objects.equals(make, that.make) && Objects.equals(model, that.model) && Objects.equals(year, that.year);
+        return Objects.equals(id, that.id) && Objects.equals(leadId, that.leadId) && status == that.status && priority == that.priority && Objects.equals(make, that.make) && Objects.equals(model, that.model) && Objects.equals(year, that.year);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, lead_id, status, priority, make, model, year);
+        return Objects.hash(id, leadId, status, priority, make, model, year);
     }
 
     @Override
     public String toString() {
         return "LeadManagement{" +
-                "id=" + id +
-                ", lead_id='" + lead_id + '\'' +
+                "id='" + id + '\'' +
+                ", leadId='" + leadId + '\'' +
                 ", status=" + status +
                 ", priority=" + priority +
                 ", make='" + make + '\'' +

@@ -34,7 +34,7 @@ public class FollowUpRemindersController {
             String id,
             String reminder,
             String customer_name,
-            Integer lead_id,
+            String lead_id,
             String email,
             Integer phone,
             String make,
@@ -46,30 +46,36 @@ public class FollowUpRemindersController {
 
     }
     @PostMapping
-    public void addFollowUpReminders(@RequestBody NewFollowUpReminders request){
+    public ResponseEntity<String> addFollowUpReminders(@RequestBody NewFollowUpReminders request){
+        try {
+            Optional<LeadManagement> leadManagementOptional = leadManagementRepository.findByLeadId(request.lead_id());
+            FollowUpReminders followUpReminders = new FollowUpReminders();
+            followUpReminders.setReminder(request.reminder());
+            followUpReminders.setCustomer_name(request.customer_name());
+            followUpReminders.setEmail(request.email());
+            followUpReminders.setPhone(request.phone());
+            followUpReminders.setMake(request.make());
+            followUpReminders.setModel(request.model());
+            followUpReminders.setColor(request.color());
+            followUpReminders.setYear(request.year());
+            followUpReminders.setQuotation(request.quotation());
+            if (leadManagementOptional.isPresent()){
+                LeadManagement leadManagement = leadManagementOptional.get();
+                followUpReminders.setLead_id(leadManagement.getId());
+                followUpReminders.setLeadManagement(leadManagement);
+            }
+            followUpRemindersRepository.save(followUpReminders);
 
-        Optional<LeadManagement> leadManagementOptional = leadManagementRepository.findById(request.lead_id());
-        FollowUpReminders followUpReminders = new FollowUpReminders();
-        followUpReminders.setReminder(request.reminder());
-        followUpReminders.setCustomer_name(request.customer_name());
-        followUpReminders.setEmail(request.email());
-        followUpReminders.setPhone(request.phone());
-        followUpReminders.setMake(request.make());
-        followUpReminders.setModel(request.model());
-        followUpReminders.setColor(request.color());
-        followUpReminders.setYear(request.year());
-        followUpReminders.setQuotation(request.quotation());
-        if (leadManagementOptional.isPresent()){
-            LeadManagement leadManagement = leadManagementOptional.get();
-            followUpReminders.setLeadManagement(leadManagement);
+            return new ResponseEntity<>("Data Inserted Successfully!", HttpStatus.CREATED);
+        } catch (Exception e) {
+            return new ResponseEntity<>("Failed to insert data!", HttpStatus.INTERNAL_SERVER_ERROR);
         }
-        followUpRemindersRepository.save(followUpReminders);
     }
 
     @PutMapping("{followUpId}")
-    public ResponseEntity<FollowUpReminders> updateFollowUpReminders(@RequestBody FollowUpReminders request, @PathVariable("followUpId") Integer id){
+    public ResponseEntity<String> updateFollowUpReminders(@RequestBody FollowUpReminders request, @PathVariable("followUpId") Integer id){
         Optional<FollowUpReminders> followUpRemindersOptional = followUpRemindersRepository.findById(id);
-        Optional<LeadManagement> leadManagementOptional = leadManagementRepository.findById(request.getLeadManagement().getId());
+        Optional<LeadManagement> leadManagementOptional = leadManagementRepository.findByLeadId(request.getLead_id());
         try {
             if (followUpRemindersOptional.isPresent()){
                 FollowUpReminders followUpReminders = followUpRemindersOptional.get();
@@ -84,22 +90,44 @@ public class FollowUpRemindersController {
                 followUpReminders.setQuotation(request.getQuotation());
                 if (leadManagementOptional.isPresent()){
                     LeadManagement leadManagement = leadManagementOptional.get();
+                    followUpReminders.setLead_id(leadManagement.getId());
                     followUpReminders.setLeadManagement(leadManagement);
+                    followUpRemindersRepository.save(followUpReminders);
                 }
-                return new ResponseEntity<>(followUpRemindersRepository.save(followUpReminders), HttpStatus.OK);
-            }else {
-                return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+                return new ResponseEntity<>("Data Updated Successfully!", HttpStatus.OK);
             }
         }
         catch (Exception e){
             System.err.println(e.getMessage());
+            return new ResponseEntity<>("Failed to Update data!", HttpStatus.NOT_FOUND);
         }
-        return null;
+        return new ResponseEntity<>("Data is not valid!",HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
     @DeleteMapping("{followUpId}")
-    public void deleteFollowUpReminders(@PathVariable("followUpId") Integer id){
-        followUpRemindersRepository.deleteById(id);
+    public ResponseEntity<String> deleteFollowUpReminders(@PathVariable("followUpId") Integer id){
+        try {
+            // Check if the followUpReminders object exists
+            boolean exists = followUpRemindersRepository.existsById(id);
+            if (!exists) {
+                return new ResponseEntity<>("followUpReminders not found!", HttpStatus.NOT_FOUND);
+            }
+
+            // Delete the followUpReminders object
+            followUpRemindersRepository.deleteById(id);
+
+            // Print a message to the console
+            //System.out.println("followUpReminders with ID " + id + " has been deleted.");
+
+            // Return a success response
+            return new ResponseEntity<>("followUpReminders deleted successfully!", HttpStatus.OK);
+        } catch (Exception e) {
+            // Print error message to the console
+            System.err.println("Error deleting followUpReminders with ID " + id + ": " + e.getMessage());
+
+            // Return an error response
+            return new ResponseEntity<>("Failed to delete followUpReminders!", HttpStatus.INTERNAL_SERVER_ERROR);
+        }
     }
 
 }

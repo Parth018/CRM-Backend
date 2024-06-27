@@ -38,33 +38,63 @@ public class SalesCampaignsController {
 
     }
     @PostMapping
-    public void addSalesCampaigns(@RequestBody NewSalesCampaigns request){
-        SalesCampaign salesCampaign = new SalesCampaign();
-        salesCampaign.setTypes(request.types());
-        salesCampaign.setName(request.name());
-        salesCampaignsRepository.save(salesCampaign);
+    public ResponseEntity<String> addSalesCampaigns(@RequestBody NewSalesCampaigns request){
+        try {
+            SalesCampaign salesCampaign = new SalesCampaign();
+            salesCampaign.setTypes(request.types());
+            salesCampaign.setName(request.name());
+            salesCampaignsRepository.save(salesCampaign);
+
+            return new ResponseEntity<>("Data Inserted Successfully!", HttpStatus.CREATED);
+        } catch (Exception e) {
+            return new ResponseEntity<>("Failed to insert data!", HttpStatus.INTERNAL_SERVER_ERROR);
+        }
     }
+
     @PutMapping("{salesId}")
-    public ResponseEntity<SalesCampaign> updateSalesCampaigns(@RequestBody SalesCampaign request, @PathVariable("salesId") Integer id){
+    public ResponseEntity<String> updateSalesCampaigns(@RequestBody SalesCampaign request, @PathVariable("salesId") Integer id){
         Optional<SalesCampaign> salesCampaignOptional = salesCampaignsRepository.findById(id);
         try {
             if (salesCampaignOptional.isPresent()){
                 SalesCampaign salesCampaign = salesCampaignOptional.get();
                 salesCampaign.setName(request.getName());
                 salesCampaign.setTypes(request.getTypes());
-                return new ResponseEntity<>(salesCampaignsRepository.save(salesCampaign), HttpStatus.OK);
-            }else {
-                return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+                salesCampaignsRepository.save(salesCampaign);
+                return new ResponseEntity<>("Data Updated Successfully!", HttpStatus.OK);
             }
         }
         catch (Exception e){
             System.err.println(e.getMessage());
+            return new ResponseEntity<>("Failed to Update data!",HttpStatus.NOT_FOUND);
         }
-       return null;
+        return new ResponseEntity<>("Data is not valid!",HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
     @DeleteMapping("{salesId}")
-    public void deleteSalesCampaigns(@PathVariable("salesId") Integer id){
-        salesCampaignsRepository.deleteById(id);
+    public ResponseEntity<String> deleteSalesCampaigns(@PathVariable("salesId") Integer id){
+
+        try {
+            // Check if the salesCampaigns object exists
+            boolean exists = salesCampaignsRepository.existsById(id);
+            if (!exists) {
+                return new ResponseEntity<>("salesCampaigns not found!", HttpStatus.NOT_FOUND);
+            }
+
+            // Delete the salesCampaigns object
+            salesCampaignsRepository.deleteById(id);
+
+            // Print a message to the console
+            //System.out.println("salesCampaigns with ID " + id + " has been deleted.");
+
+            // Return a success response
+            return new ResponseEntity<>("salesCampaigns deleted successfully!", HttpStatus.OK);
+        } catch (Exception e) {
+            // Print error message to the console
+            System.err.println("Error deleting salesCampaigns with ID " + id + ": " + e.getMessage());
+
+            // Return an error response
+            return new ResponseEntity<>("Failed to delete salesCampaigns!", HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+
     }
 }

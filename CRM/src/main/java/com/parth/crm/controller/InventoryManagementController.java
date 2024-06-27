@@ -1,6 +1,7 @@
 package com.parth.crm.controller;
 
 import com.parth.crm.models.InventoryManagement;
+import com.parth.crm.models.SalesCampaign;
 import com.parth.crm.models.SalesTasks;
 import com.parth.crm.models.TaskTypes;
 import com.parth.crm.repository.InventoryManagementRepository;
@@ -39,17 +40,24 @@ public class InventoryManagementController {
 
     }
     @PostMapping
-    public void addInventoryManagement(@RequestBody NewInventoryManagement request){
-        InventoryManagement inventoryManagement = new InventoryManagement();
-        inventoryManagement.setMake(request.make());
-        inventoryManagement.setModel(request.model());
-        inventoryManagement.setYear(request.year());
-        inventoryManagement.setPrice(request.price());
-        inventoryManagementRepository.save(inventoryManagement);
+    public ResponseEntity<String> addInventoryManagement(@RequestBody NewInventoryManagement request){
+
+        try {
+            InventoryManagement inventoryManagement = new InventoryManagement();
+            inventoryManagement.setMake(request.make());
+            inventoryManagement.setModel(request.model());
+            inventoryManagement.setYear(request.year());
+            inventoryManagement.setPrice(request.price());
+            inventoryManagementRepository.save(inventoryManagement);
+
+            return new ResponseEntity<>("Data Inserted Successfully!", HttpStatus.CREATED);
+        } catch (Exception e) {
+            return new ResponseEntity<>("Failed to insert data!", HttpStatus.INTERNAL_SERVER_ERROR);
+        }
     }
 
     @PutMapping("{inventoryId}")
-    public ResponseEntity<InventoryManagement> updateInventoryManagement(@RequestBody InventoryManagement request, @PathVariable("inventoryId") Integer id){
+    public ResponseEntity<String> updateInventoryManagement(@RequestBody InventoryManagement request, @PathVariable("inventoryId") Integer id){
         Optional<InventoryManagement> inventoryManagementOptional = inventoryManagementRepository.findById(id);
         try {
             if (inventoryManagementOptional.isPresent()){
@@ -58,19 +66,40 @@ public class InventoryManagementController {
                 inventoryManagement.setModel(request.getModel());
                 inventoryManagement.setYear(request.getYear());
                 inventoryManagement.setPrice(request.getPrice());
-                return new ResponseEntity<>(inventoryManagementRepository.save(inventoryManagement), HttpStatus.OK);
-            }else {
-                return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+                inventoryManagementRepository.save(inventoryManagement);
+                return new ResponseEntity<>("Data Updated Successfully!", HttpStatus.OK);
             }
         }
         catch (Exception e){
             System.err.println(e.getMessage());
+            return new ResponseEntity<>("Failed to Update data!",HttpStatus.NOT_FOUND);
         }
-        return null;
+        return new ResponseEntity<>("Data is not valid!",HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
     @DeleteMapping("{inventoryId}")
-    public void deleteInventoryManagement(@PathVariable("inventoryId") Integer id){
-        inventoryManagementRepository.deleteById(id);
+    public ResponseEntity<String> deleteInventoryManagement(@PathVariable("inventoryId") Integer id){
+        try {
+            // Check if the inventoryManagement object exists
+            boolean exists = inventoryManagementRepository.existsById(id);
+            if (!exists) {
+                return new ResponseEntity<>("inventoryManagement not found!", HttpStatus.NOT_FOUND);
+            }
+
+            // Delete the inventoryManagement object
+            inventoryManagementRepository.deleteById(id);
+
+            // Print a message to the console
+            //System.out.println("inventoryManagement with ID " + id + " has been deleted.");
+
+            // Return a success response
+            return new ResponseEntity<>("inventoryManagement deleted successfully!", HttpStatus.OK);
+        } catch (Exception e) {
+            // Print error message to the console
+            System.err.println("Error deleting inventoryManagement with ID " + id + ": " + e.getMessage());
+
+            // Return an error response
+            return new ResponseEntity<>("Failed to delete inventoryManagement!", HttpStatus.INTERNAL_SERVER_ERROR);
+        }
     }
 }

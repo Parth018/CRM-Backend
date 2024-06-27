@@ -19,8 +19,11 @@ public class FollowUpReminders {
     private String reminder;
     private String customer_name;
 
+    @Column(name = "lead_id", nullable = false)
+    private String leadId;
+
     @OneToOne
-    @JoinColumn(name = "lead_id")
+    @JoinColumn(name = "lead_id", referencedColumnName = "id", insertable = false, updatable = false)
     private LeadManagement leadManagement;
 
     private String email;
@@ -34,10 +37,11 @@ public class FollowUpReminders {
     public FollowUpReminders() {
     }
 
-    public FollowUpReminders(Integer id, String reminder, String customer_name, LeadManagement leadManagement, String email, Integer phone, String make, String model, String color, Integer year, Integer quotation) {
+    public FollowUpReminders(Integer id, String reminder, String customer_name, String lead_id, LeadManagement leadManagement, String email, Integer phone, String make, String model, String color, Integer year, Integer quotation) {
         this.id = id;
         this.reminder = reminder;
         this.customer_name = customer_name;
+        this.leadId = lead_id;
         this.leadManagement = leadManagement;
         this.email = email;
         this.phone = phone;
@@ -70,6 +74,14 @@ public class FollowUpReminders {
 
     public void setCustomer_name(String customer_name) {
         this.customer_name = customer_name;
+    }
+
+    public String getLead_id() {
+        return leadId;
+    }
+
+    public void setLead_id(String lead_id) {
+        this.leadId = lead_id;
     }
 
     public LeadManagement getLeadManagement() {
@@ -141,12 +153,12 @@ public class FollowUpReminders {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         FollowUpReminders that = (FollowUpReminders) o;
-        return Objects.equals(id, that.id) && Objects.equals(reminder, that.reminder) && Objects.equals(customer_name, that.customer_name) && Objects.equals(leadManagement, that.leadManagement) && Objects.equals(email, that.email) && Objects.equals(phone, that.phone) && Objects.equals(make, that.make) && Objects.equals(model, that.model) && Objects.equals(color, that.color) && Objects.equals(year, that.year) && Objects.equals(quotation, that.quotation);
+        return Objects.equals(id, that.id) && Objects.equals(reminder, that.reminder) && Objects.equals(customer_name, that.customer_name) && Objects.equals(leadId, that.leadId) && Objects.equals(leadManagement, that.leadManagement) && Objects.equals(email, that.email) && Objects.equals(phone, that.phone) && Objects.equals(make, that.make) && Objects.equals(model, that.model) && Objects.equals(color, that.color) && Objects.equals(year, that.year) && Objects.equals(quotation, that.quotation);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, reminder, customer_name, leadManagement, email, phone, make, model, color, year, quotation);
+        return Objects.hash(id, reminder, customer_name, leadId, leadManagement, email, phone, make, model, color, year, quotation);
     }
 
     @Override
@@ -155,6 +167,7 @@ public class FollowUpReminders {
                 "id=" + id +
                 ", reminder='" + reminder + '\'' +
                 ", customer_name='" + customer_name + '\'' +
+                ", lead_id='" + leadId + '\'' +
                 ", leadManagement=" + leadManagement +
                 ", email='" + email + '\'' +
                 ", phone=" + phone +
