@@ -31,6 +31,7 @@ public class LeadManagementController {
         return leadManagementRepository.findAll();
     }
 
+
     record NewLeadManagement(
      String id,
      String lead_id,
@@ -43,43 +44,73 @@ public class LeadManagementController {
 
     }
     @PostMapping
-    public void addLeadManagement(@RequestBody NewLeadManagement request){
+    public ResponseEntity<String> addLeadManagement(@RequestBody NewLeadManagement request){
+        try {
             LeadManagement leadManagement = new LeadManagement();
-            leadManagement.setLead_id(request.lead_id());
+            leadManagement.setLeadId(request.lead_id());
             leadManagement.setStatus(request.status());
             leadManagement.setPriority(request.priority());
             leadManagement.setMake(request.make());
             leadManagement.setModel(request.model());
             leadManagement.setYear(request.year());
             leadManagementRepository.save(leadManagement);
+
+            return new ResponseEntity<>("Data Inserted Successfully!", HttpStatus.CREATED);
+        } catch (Exception e) {
+            return new ResponseEntity<>("Failed to insert data!", HttpStatus.INTERNAL_SERVER_ERROR);
+        }
     }
 
     @PutMapping("{leadId}")
-    public ResponseEntity<LeadManagement> updateLeadManagement(@RequestBody LeadManagement request, @PathVariable("leadId") Integer id){
+    public ResponseEntity<String> updateLeadManagement(@RequestBody LeadManagement request, @PathVariable("leadId") String id){
         Optional<LeadManagement> leadManagement = leadManagementRepository.findById(id);
         try {
             if (leadManagement.isPresent()){
                 LeadManagement _leadManagement = leadManagement.get();
-                _leadManagement.setLead_id(request.getLead_id());
+                _leadManagement.setLeadId(request.getLeadId());
                 _leadManagement.setStatus(request.getStatus());
                 _leadManagement.setPriority(request.getPriority());
                 _leadManagement.setMake(request.getMake());
                 _leadManagement.setModel(request.getModel());
                 _leadManagement.setYear(request.getYear());
-                return new ResponseEntity<>(leadManagementRepository.save(_leadManagement), HttpStatus.OK);
+                leadManagementRepository.save(_leadManagement);
+                return new ResponseEntity<>("Data Updated Successfully!", HttpStatus.OK);
             }else {
-                return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+                return new ResponseEntity<>("Failed to Update data!",HttpStatus.NOT_FOUND);
             }
         }
         catch (Exception e){
             System.err.println(e.getMessage());
+
         }
-       return null;
+        return new ResponseEntity<>("Not able to found leadManagement!", HttpStatus.NOT_FOUND);
     }
 
     @DeleteMapping("{leadId}")
-    public void deleteLeadManagement(@PathVariable("leadId") Integer id){
-        leadManagementRepository.deleteById(id);
+    public ResponseEntity<String> deleteLeadManagement(@PathVariable("leadId") String id){
+
+        try {
+            // Check if the LeadManagement object exists
+            boolean exists = leadManagementRepository.existsById(id);
+            if (!exists) {
+                return new ResponseEntity<>("LeadManagement not found!", HttpStatus.NOT_FOUND);
+            }
+
+            // Delete the LeadManagement object
+            leadManagementRepository.deleteById(id);
+
+            // Print a message to the console
+            //System.out.println("LeadManagement with ID " + id + " has been deleted.");
+
+            // Return a success response
+            return new ResponseEntity<>("LeadManagement deleted successfully!", HttpStatus.OK);
+        } catch (Exception e) {
+            // Print error message to the console
+            System.err.println("Error deleting LeadManagement with ID " + id + ": " + e.getMessage());
+
+            // Return an error response
+            return new ResponseEntity<>("Failed to delete LeadManagement!", HttpStatus.INTERNAL_SERVER_ERROR);
+        }
     }
 
 }
