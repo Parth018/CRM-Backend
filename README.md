@@ -14,7 +14,7 @@
 
 ## Introduction
 
-CRM-Backend is a Spring Boot application that provides a RESTful API for managing customer relationship data. The API supports CRUD operations for customer records and other related resources, ensuring efficient and organized customer management.
+CRM-Backend is a Spring Boot application that provides a RESTful API for managing customer relationship database. The API supports CRUD operations for customer records and other related resources, ensuring efficient and organized customer management.
 
 ## Features
 
@@ -22,7 +22,7 @@ CRM-Backend is a Spring Boot application that provides a RESTful API for managin
 - Input validation
 - Exception handling
 - Pagination and sorting
-- Swagger documentation
+- Swagger API
 
 ## Technologies
 
